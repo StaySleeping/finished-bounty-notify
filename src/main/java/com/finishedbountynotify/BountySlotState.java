@@ -72,6 +72,6 @@ final class BountySlotState
 
 	boolean isComplete()
 	{
-		return task != null && itemsCollected >= task.getItemQuantity();
+		return task != null && task.getItemQuantity() > 0 && itemsCollected >= task.getItemQuantity();
 	}
 }

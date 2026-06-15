@@ -85,6 +85,7 @@ RuneLite only loads jars from `sideloaded-plugins` when `--developer-mode` is se
 
 - **Notify on completion** — toggle notifications on/off
 - **Notification mode** — each task, or all tasks for the same monster
-- **Include task name** — include the bounty task or monster name in the notification message
+
+Notification messages include the bounty task name (each-task mode) or monster name (all-tasks-for-monster mode).
 
 Notifications respect RuneLite's global notification settings (sounds, tray notifications, flash, etc.).

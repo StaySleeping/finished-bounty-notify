@@ -25,7 +25,7 @@
 
 package com.finishedbountynotify;
 
-enum NotificationMode
+public enum NotificationMode
 {
 	EACH_TASK("Each task"),
 	ALL_MONSTER_TASKS("All tasks for monster");

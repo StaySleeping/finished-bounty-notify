@@ -51,16 +51,7 @@ public interface FinishedBountyNotifyConfig extends Config
 	)
 	default NotificationMode notificationMode()
 	{
-		return NotificationMode.EACH_TASK;
+		return NotificationMode.ALL_MONSTER_TASKS;
 	}
 
-	@ConfigItem(
-		keyName = "includeTaskName",
-		name = "Include task name",
-		description = "Include the bounty task name in the notification message"
-	)
-	default boolean includeTaskName()
-	{
-		return true;
-	}
 }
