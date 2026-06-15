@@ -2,7 +2,7 @@
 
 A RuneLite plugin that sends a notification when you finish collecting all parts for a sailing bounty task.
 
-Licensed under the [MIT License](LICENSE).
+Licensed under the [BSD 2-Clause License](LICENSE).
 
 ## How it works
 
@@ -31,10 +31,12 @@ This project is based on the [RuneLite example plugin](https://github.com/runeli
 
 ### Prerequisites
 
-- JDK 11+
+- JDK 11 ([Eclipse Temurin](https://adoptium.net/) recommended; see [RuneLite wiki](https://github.com/runelite/runelite/wiki/Building-with-IntelliJ-IDEA))
 - An OSRS account with access to sailing bounty tasks for testing
 
 ### Run locally
+
+Per the [plugin-hub development guide](https://github.com/runelite/plugin-hub#createing-new-plugins), run the plugin with the Gradle `run` task:
 
 ```bash
 ./gradlew run
@@ -42,19 +44,36 @@ This project is based on the [RuneLite example plugin](https://github.com/runeli
 
 This launches RuneLite in developer mode with the plugin loaded.
 
-### Build a plugin jar
+#### Jagex accounts
+
+If your account uses a [Jagex Account](https://github.com/runelite/runelite/wiki/Using-Jagex-Accounts), set up saved credentials once before running `./gradlew run`:
+
+1. Use RuneLite launcher **2.6.3 or newer**.
+2. Open the launcher config:
+   - **Windows:** Start menu → `RuneLite (configure)`
+   - **macOS:** `/Applications/RuneLite.app/Contents/MacOS/RuneLite --configure`
+   - **Linux:** run your launcher with `--configure`
+3. In **Client arguments**, add `--insecure-write-credentials` and click **Save**.
+4. Launch RuneLite from the **Jagex Launcher** once. This writes `~/.runelite/credentials.properties`.
+5. Run `./gradlew run`. The dev client uses those saved credentials automatically.
+
+Do not share `credentials.properties`. When you are done testing, delete `~/.runelite/credentials.properties`. To invalidate the credentials remotely, use **End sessions** in your account settings on [runescape.com](https://www.runescape.com).
+
+### Test in your normal RuneLite client (optional)
+
+To load the plugin in your installed RuneLite instead of the dev client, side-load it:
+
+1. Build the plugin jar:
 
 ```bash
-./gradlew shadowJar
+./gradlew jar
 ```
 
-The jar is written to `build/libs/`.
+2. Copy `build/libs/finished-bounty-notify.jar` to `~/.runelite/sideloaded-plugins/`.
+3. Add `--developer-mode` to your RuneLite launcher **Client arguments** (same configure window as above).
+4. Start RuneLite and enable **Finished Bounty Notify** in the plugin configuration panel.
 
-## Install without publishing to Plugin Hub
-
-1. Build the shadow jar (above).
-2. In RuneLite, open the wrench icon → Plugin Hub → the settings/gear icon → **Install plugin from disk**.
-3. Select the built jar.
+RuneLite only loads jars from `sideloaded-plugins` when `--developer-mode` is set.
 
 ## Publish to Plugin Hub (optional)
 

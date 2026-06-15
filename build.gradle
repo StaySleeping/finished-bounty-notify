@@ -36,13 +36,17 @@ tasks.withType(JavaCompile).configureEach {
 
 java {
 	toolchain {
-		languageVersion = JavaLanguageVersion.of(17)
+		languageVersion = JavaLanguageVersion.of(11)
 	}
 }
 
 tasks.register('run', JavaExec) {
 	classpath = sourceSets.test.runtimeClasspath
 	mainClass = pluginMainClass
+
+	javaLauncher = javaToolchains.launcherFor {
+		languageVersion = JavaLanguageVersion.of(11)
+	}
 
 	jvmArgs "-ea"
 	args "--developer-mode", "--debug"
