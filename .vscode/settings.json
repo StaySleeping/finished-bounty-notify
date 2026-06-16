@@ -1,0 +1,4 @@
+{
+	"java.format.settings.url": "file:./eclipse-formatter.xml",
+	"java.format.settings.profile": "RuneLite"
+}

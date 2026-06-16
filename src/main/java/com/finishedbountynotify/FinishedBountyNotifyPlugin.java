@@ -1,28 +1,3 @@
-/*
- * Copyright (c) 2026, StaySleeping
- * All rights reserved.
- *
- * Redistribution and use in source and binary forms, with or without
- * modification, are permitted provided that the following conditions are met:
- *
- * 1. Redistributions of source code must retain the above copyright notice, this
- *    list of conditions and the following disclaimer.
- * 2. Redistributions in binary form must reproduce the above copyright notice,
- *    this list of conditions and the following disclaimer in the documentation
- *    and/or other materials provided with the distribution.
- *
- * THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS "AS IS" AND
- * ANY EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT LIMITED TO, THE IMPLIED
- * WARRANTIES OF MERCHANTABILITY AND FITNESS FOR A PARTICULAR PURPOSE ARE
- * DISCLAIMED. IN NO EVENT SHALL THE COPYRIGHT OWNER OR CONTRIBUTORS BE LIABLE FOR
- * ANY DIRECT, INDIRECT, INCIDENTAL, SPECIAL, EXEMPLARY, OR CONSEQUENTIAL DAMAGES
- * (INCLUDING, BUT NOT LIMITED TO, PROCUREMENT OF SUBSTITUTE GOODS OR SERVICES;
- * LOSS OF USE, DATA, OR PROFITS; OR BUSINESS INTERRUPTION) HOWEVER CAUSED AND
- * ON ANY THEORY OF LIABILITY, WHETHER IN CONTRACT, STRICT LIABILITY, OR TORT
- * (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE OF THIS
- * SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
- */
-
 package com.finishedbountynotify;
 
 import com.google.inject.Provides;
@@ -44,9 +19,13 @@ import net.runelite.client.plugins.Plugin;
 import net.runelite.client.plugins.PluginDescriptor;
 
 @Slf4j
-@PluginDescriptor(name = "Finished Bounty Notify", description = "Notifies you when a sailing bounty task has all parts collected", tags = {
-		"sailing", "bounty", "port", "tasks", "notification" })
-public class FinishedBountyNotifyPlugin extends Plugin {
+@PluginDescriptor(
+	name = "Finished Bounty Notify",
+	description = "Notifies you when a sailing bounty task has all parts collected",
+	tags = {"sailing", "bounty", "port", "tasks", "notification"}
+)
+public class FinishedBountyNotifyPlugin extends Plugin
+{
 	private static final int TASK_SLOT_COUNT = 5;
 
 	@Inject
@@ -69,46 +48,59 @@ public class FinishedBountyNotifyPlugin extends Plugin {
 	private boolean suppressNotifications;
 
 	@Override
-	protected void startUp() {
-		for (int i = 0; i < slots.length; i++) {
+	protected void startUp()
+	{
+		for (int i = 0; i < slots.length; i++)
+		{
 			slots[i] = new BountySlotState();
 		}
 	}
 
 	@Override
-	protected void shutDown() {
+	protected void shutDown()
+	{
 		monsterGroupNotified.clear();
-		for (int i = 0; i < slots.length; i++) {
-			if (slots[i] != null) {
+		for (int i = 0; i < slots.length; i++)
+		{
+			if (slots[i] != null)
+			{
 				slots[i].clear();
 			}
 		}
 	}
 
 	@Subscribe
-	public void onGameStateChanged(GameStateChanged event) {
-		if (event.getGameState() != GameState.LOGGED_IN) {
+	public void onGameStateChanged(GameStateChanged event)
+	{
+		if (event.getGameState() != GameState.LOGGED_IN)
+		{
 			return;
 		}
 
 		suppressNotifications = true;
-		try {
+		try
+		{
 			BountyTaskCatalog.loadFromClient(client);
 			widgetReader.scanOpenInterfaces();
 			readAllSlotsFromClient();
-		} catch (Exception e) {
+		}
+		catch (Exception e)
+		{
 			log.warn("Failed to load bounty task data on login", e);
-		} finally {
+		}
+		finally
+		{
 			suppressNotifications = false;
 		}
 	}
 
 	@Subscribe
-	public void onWidgetLoaded(WidgetLoaded event) {
+	public void onWidgetLoaded(WidgetLoaded event)
+	{
 		int groupId = event.getGroupId();
-		if (groupId != InterfaceID.PORT_TASK_BOARD
-				&& groupId != InterfaceID.SAILING_LOG
-				&& groupId != InterfaceID.PORT_TASK_INFO) {
+		if (groupId != InterfaceID.PORT_TASK_BOARD && groupId != InterfaceID.SAILING_LOG
+						&& groupId != InterfaceID.PORT_TASK_INFO)
+		{
 			return;
 		}
 
@@ -119,8 +111,10 @@ public class FinishedBountyNotifyPlugin extends Plugin {
 	}
 
 	@Subscribe
-	public void onVarbitChanged(VarbitChanged event) {
-		if (!PortTaskTrigger.contains(event.getVarbitId())) {
+	public void onVarbitChanged(VarbitChanged event)
+	{
+		if (!PortTaskTrigger.contains(event.getVarbitId()))
+		{
 			return;
 		}
 
@@ -128,25 +122,31 @@ public class FinishedBountyNotifyPlugin extends Plugin {
 		handleTrigger(trigger, event.getValue());
 	}
 
-	private void readAllSlotsFromClient() {
+	private void readAllSlotsFromClient()
+	{
 		int[] varps = client.getVarps();
-		if (varps == null) {
+		if (varps == null)
+		{
 			return;
 		}
 
-		for (PortTaskTrigger trigger : PortTaskTrigger.values()) {
+		for (PortTaskTrigger trigger : PortTaskTrigger.values())
+		{
 			int value = client.getVarbitValue(varps, trigger.getId());
 			handleTrigger(trigger, value);
 		}
 	}
 
-	private void handleTrigger(PortTaskTrigger trigger, int value) {
+	private void handleTrigger(PortTaskTrigger trigger, int value)
+	{
 		int slot = trigger.getSlot();
-		if (slot < 0 || slot >= slots.length) {
+		if (slot < 0 || slot >= slots.length)
+		{
 			return;
 		}
 
-		switch (trigger.getType()) {
+		switch (trigger.getType())
+		{
 			case ID:
 				handleTaskIdChanged(slot, value);
 				break;
@@ -156,88 +156,108 @@ public class FinishedBountyNotifyPlugin extends Plugin {
 		}
 	}
 
-	private void handleTaskIdChanged(int slot, int taskId) {
+	private void handleTaskIdChanged(int slot, int taskId)
+	{
 		BountySlotState state = slots[slot];
 		String previousGroup = state.getTask() != null ? state.getTask().getMonsterGroupKey() : null;
 
-		if (taskId == 0) {
+		if (taskId == 0)
+		{
 			state.clear();
 			resetMonsterGroup(previousGroup);
 			return;
 		}
 
 		BountyTaskData task = BountyTaskCatalog.fromId(taskId);
-		if (task == null) {
+		if (task == null)
+		{
 			state.clear();
 			resetMonsterGroup(previousGroup);
 			return;
 		}
 
-		if (state.getTask() == null || state.getTask().getId() != taskId) {
+		if (state.getTask() == null || state.getTask().getId() != taskId)
+		{
 			state.setTask(task);
 			resetMonsterGroup(previousGroup);
 			resetMonsterGroup(task.getMonsterGroupKey());
 		}
 	}
 
-	private void handleCountChanged(int slot, int remaining) {
+	private void handleCountChanged(int slot, int remaining)
+	{
 		BountySlotState state = slots[slot];
-		if (state.getTask() == null) {
+		if (state.getTask() == null)
+		{
 			PortTaskTrigger idTrigger = PortTaskTrigger.idTriggerForSlot(slot);
-			if (idTrigger != null) {
+			if (idTrigger != null)
+			{
 				handleTaskIdChanged(slot, client.getVarbitValue(idTrigger.getId()));
 			}
 		}
 
 		BountyTaskData task = state.getTask();
-		if (task == null) {
+		if (task == null)
+		{
 			return;
 		}
 
 		int required = task.getItemQuantity();
-		if (applyCountUpdate(state, required, remaining)) {
+		if (applyCountUpdate(state, required, remaining))
+		{
 			maybeNotify(state, task);
 		}
 	}
 
-	private void refreshSlotCompletion() {
-		for (int slot = 0; slot < slots.length; slot++) {
+	private void refreshSlotCompletion()
+	{
+		for (int slot = 0; slot < slots.length; slot++)
+		{
 			BountySlotState state = slots[slot];
-			if (state.getTask() == null) {
+			if (state.getTask() == null)
+			{
 				continue;
 			}
 
 			PortTaskTrigger countTrigger = PortTaskTrigger.countTriggerForSlot(slot);
-			if (countTrigger == null) {
+			if (countTrigger == null)
+			{
 				continue;
 			}
 
 			boolean wasComplete = state.isComplete();
 			handleCountChanged(slot, client.getVarbitValue(countTrigger.getId()));
-			if (!suppressNotifications && wasComplete && !state.isComplete()) {
+			if (!suppressNotifications && wasComplete && !state.isComplete())
+			{
 				resetMonsterGroup(state.getTask().getMonsterGroupKey());
 			}
 		}
 	}
 
-	static int itemsCollected(int required, int remaining) {
+	static int itemsCollected(int required, int remaining)
+	{
 		return Math.max(0, Math.min(required, required - remaining));
 	}
 
-	static boolean applyCountUpdate(BountySlotState state, int required, int remaining) {
+	static boolean applyCountUpdate(BountySlotState state, int required, int remaining)
+	{
 		int collected = itemsCollected(required, remaining);
 		boolean wasComplete = state.isComplete();
 		state.setItemsCollected(collected);
 		return !wasComplete && state.isComplete();
 	}
 
-	private void maybeNotify(BountySlotState state, BountyTaskData task) {
-		if (suppressNotifications || !config.notifyOnComplete()) {
+	private void maybeNotify(BountySlotState state, BountyTaskData task)
+	{
+		if (suppressNotifications || !config.notifyOnComplete())
+		{
 			return;
 		}
 
-		if (config.notificationMode() == NotificationMode.EACH_TASK) {
-			if (state.isNotified()) {
+		if (config.notificationMode() == NotificationMode.EACH_TASK)
+		{
+			if (state.isNotified())
+			{
 				return;
 			}
 
@@ -247,11 +267,13 @@ public class FinishedBountyNotifyPlugin extends Plugin {
 		}
 
 		String groupKey = task.getMonsterGroupKey();
-		if (Boolean.TRUE.equals(monsterGroupNotified.get(groupKey))) {
+		if (Boolean.TRUE.equals(monsterGroupNotified.get(groupKey)))
+		{
 			return;
 		}
 
-		if (!BountyNotifyLogic.isMonsterGroupComplete(groupKey, slots)) {
+		if (!BountyNotifyLogic.isMonsterGroupComplete(groupKey, slots))
+		{
 			return;
 		}
 
@@ -259,26 +281,33 @@ public class FinishedBountyNotifyPlugin extends Plugin {
 		monsterGroupNotified.put(groupKey, true);
 	}
 
-	private void sendNotification(BountyTaskData task) {
+	private void sendNotification(BountyTaskData task)
+	{
 		String message;
-		if (config.notificationMode() == NotificationMode.ALL_MONSTER_TASKS
-				&& task.getMonsterName() != null && !task.getMonsterName().isEmpty()) {
+		if (config.notificationMode() == NotificationMode.ALL_MONSTER_TASKS && task.getMonsterName() != null
+						&& !task.getMonsterName().isEmpty())
+		{
 			message = "All " + task.getMonsterName() + " bounty tasks complete";
-		} else {
+		}
+		else
+		{
 			message = "Bounty task complete: " + task.getTaskName();
 		}
 
 		notifier.notify(message);
 	}
 
-	private void resetMonsterGroup(String groupKey) {
-		if (groupKey != null) {
+	private void resetMonsterGroup(String groupKey)
+	{
+		if (groupKey != null)
+		{
 			monsterGroupNotified.remove(groupKey);
 		}
 	}
 
 	@Provides
-	FinishedBountyNotifyConfig provideConfig(ConfigManager configManager) {
+	FinishedBountyNotifyConfig provideConfig(ConfigManager configManager)
+	{
 		return configManager.getConfig(FinishedBountyNotifyConfig.class);
 	}
 }
