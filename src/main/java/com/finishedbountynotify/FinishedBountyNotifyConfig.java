@@ -3,6 +3,7 @@ package com.finishedbountynotify;
 import net.runelite.client.config.Config;
 import net.runelite.client.config.ConfigGroup;
 import net.runelite.client.config.ConfigItem;
+import net.runelite.client.config.Notification;
 
 @ConfigGroup("finishedbountynotify")
 public interface FinishedBountyNotifyConfig extends Config
@@ -12,9 +13,9 @@ public interface FinishedBountyNotifyConfig extends Config
 		name = "Notify on completion",
 		description = "Send a notification when bounty task collection requirements are met"
 	)
-	default boolean notifyOnComplete()
+	default Notification notifyOnComplete()
 	{
-		return true;
+		return Notification.ON;
 	}
 
 	@ConfigItem(
